@@ -2,22 +2,28 @@
 /* eslint no-param-reassign:0, strict:0 */
 'use strict';
 
+const yaml = require('yaml-front-matter');
 const execSync = require('child_process').execSync;
 const moment = require('moment-timezone');
 
 hexo.extend.filter.register('before_post_render', data => {
+  const frontMatter = yaml.loadFront(data.raw);
   const filePath = data.full_source;
 
-  const originDate = data.date;
-  const gitDate = getDateOfOldestGitLog(filePath, '');
-  if (gitDate && gitDate < originDate) {
-    data.date = gitDate;
+  if (! frontMatter.date) {
+    const originDate = data.date;
+    const gitDate = getDateOfOldestGitLog(filePath, '');
+    if (gitDate && gitDate < originDate) {
+      data.date = gitDate;
+    }
   }
 
-  const originUpdated = data.updated;
-  const gitUpdated = getDateOfOldestGitLog(filePath, '-1');
-  if (gitUpdated && gitUpdated < originUpdated) {
-    data.updated = gitUpdated;
+  if (! frontMatter.updated) {
+    const originUpdated = data.updated;
+    const gitUpdated = getDateOfOldestGitLog(filePath, '-1');
+    if (gitUpdated && gitUpdated < originUpdated) {
+      data.updated = gitUpdated;
+    }
   }
 
   return data;

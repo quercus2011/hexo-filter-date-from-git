@@ -25,7 +25,8 @@
   },
   "homepage": "https://github.com/xcatliu/hexo-filter-date-from-git#readme",
   "dependencies": {
-    "moment-timezone": "^0.5.4"
+    "moment-timezone": "^0.5.4",
+    "yaml-front-matter": "^3.0.1"
   },
   "devDependencies": {
     "eslint": "^2.13.1",
