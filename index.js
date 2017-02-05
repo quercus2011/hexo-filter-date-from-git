@@ -2,19 +2,20 @@
 /* eslint no-param-reassign:0, strict:0 */
 'use strict';
 
-const path = require('path');
 const execSync = require('child_process').execSync;
 const moment = require('moment-timezone');
 
 hexo.extend.filter.register('before_post_render', data => {
+  const filePath = data.full_source;
+
   const originDate = data.date;
-  const gitDate = getDateOfOldestGitLog(data, '');
+  const gitDate = getDateOfOldestGitLog(filePath, '');
   if (gitDate && gitDate < originDate) {
     data.date = gitDate;
   }
 
   const originUpdated = data.updated;
-  const gitUpdated = getDateOfOldestGitLog(data, '-1');
+  const gitUpdated = getDateOfOldestGitLog(filePath, '-1');
   if (gitUpdated && gitUpdated < originUpdated) {
     data.updated = gitUpdated;
   }
@@ -30,8 +31,7 @@ function execSyncCasually(command) {
   }
 }
 
-function getDateOfOldestGitLog(data, opt) {
-  const filePath = getFilePath(data);
+function getDateOfOldestGitLog(filePath, opt) {
   const log = execSyncCasually(`git log --follow ${opt} --format="%ad" -- ${filePath}`).toString().trim();
   const date = log.slice(log.lastIndexOf('\n') + 1);
   // If the file is created a moment ago, it will be an untracked file, then git can not log it
@@ -39,8 +39,4 @@ function getDateOfOldestGitLog(data, opt) {
     return undefined;
   }
   return moment(new Date(date));
-}
-
-function getFilePath(data) {
-  return data.full_source;
 }
