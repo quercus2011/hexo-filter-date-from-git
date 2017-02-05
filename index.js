@@ -42,5 +42,5 @@ function getDateOfOldestGitLog(data, opt) {
 }
 
 function getFilePath(data) {
-  return path.resolve(hexo.config.source_dir, data.source);
+  return data.full_source;
 }
