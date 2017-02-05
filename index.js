@@ -11,17 +11,15 @@ hexo.extend.filter.register('before_post_render', data => {
   const filePath = data.full_source;
 
   if (! frontMatter.date) {
-    const originDate = data.date;
     const gitDate = getDateOfOldestGitLog(filePath, '');
-    if (gitDate && gitDate < originDate) {
+    if (gitDate) {
       data.date = gitDate;
     }
   }
 
   if (! frontMatter.updated) {
-    const originUpdated = data.updated;
     const gitUpdated = getDateOfOldestGitLog(filePath, '-1');
-    if (gitUpdated && gitUpdated < originUpdated) {
+    if (gitUpdated) {
       data.updated = gitUpdated;
     }
   }
