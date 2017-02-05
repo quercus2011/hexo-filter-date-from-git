@@ -9,13 +9,13 @@ const moment = require('moment-timezone');
 hexo.extend.filter.register('before_post_render', data => {
   const originDate = data.date;
   const gitDate = getDate(data);
-  if (gitDate < originDate) {
+  if (gitDate && gitDate < originDate) {
     data.date = gitDate;
   }
 
   const originUpdated = data.updated;
   const gitUpdated = getUpdated(data);
-  if (gitUpdated < originUpdated) {
+  if (gitUpdated && gitUpdated < originUpdated) {
     data.updated = gitUpdated;
   }
 
@@ -27,7 +27,7 @@ function getDate(data) {
   const date = execSync(`git log --follow --format="%ad" -- ${filePath} | tail -1`).toString().trim();
   // If the file is created a moment ago, it will be an untracked file, then git can not log it
   if (date === '') {
-    return moment();
+    return undefined;
   }
   return moment(new Date(date));
 }
@@ -36,7 +36,7 @@ function getUpdated(data) {
   const filePath = getFilePath(data);
   const updated = execSync(`git log --follow -1 --format="%ad" -- ${filePath}`).toString().trim();
   if (updated === '') {
-    return moment();
+    return undefined;
   }
   return moment(new Date(updated));
 }
