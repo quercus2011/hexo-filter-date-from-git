@@ -22,9 +22,17 @@ hexo.extend.filter.register('before_post_render', data => {
   return data;
 });
 
+function execSyncCasually(command) {
+  try {
+    return execSync(command);
+  } catch(err) {
+    return '';
+  }
+}
+
 function getDateOfOldestGitLog(data, opt) {
   const filePath = getFilePath(data);
-  const log = execSync(`git log --follow ${opt} --format="%ad" -- ${filePath}`).toString().trim();
+  const log = execSyncCasually(`git log --follow ${opt} --format="%ad" -- ${filePath}`).toString().trim();
   const date = log.slice(log.lastIndexOf('\n') + 1);
   // If the file is created a moment ago, it will be an untracked file, then git can not log it
   if (date === '') {
