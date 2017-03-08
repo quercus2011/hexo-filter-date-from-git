@@ -10,14 +10,14 @@ hexo.extend.filter.register('before_post_render', data => {
   const frontMatter = yaml.loadFront(data.raw);
   const filePath = data.full_source;
 
-  if (true || ! frontMatter.date) {
+  if (! frontMatter.date) {
     const gitDate = getDateOfOldestGitLog(filePath, '');
     if (gitDate) {
       data.date = gitDate;
     }
   }
 
-  if (true || ! frontMatter.updated) {
+  if (! frontMatter.updated) {
     const gitUpdated = getDateOfOldestGitLog(filePath, '-1');
     if (gitUpdated) {
       data.updated = gitUpdated;
