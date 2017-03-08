@@ -58,11 +58,13 @@ function selectTimestamp(name, data, frontMatter, gitLogs, filePath, timezone, l
   assert(org, `BUG: data.${name} should be set: ${filePath}`);
   if (fm) {
     const result = moment.tz(fm, timezone);
+    logger(`select front-matter timestamp as "${name}": "${fm}" => "${result && result.format()}" for ${filePath}`);
     if (! result || ! result.isValid()) throw new Error(`Invalid timestamp "${fm}" in front-matter: ${filePath}`);
     assert(result.isSame(org), `BUG: data.${name} should be equal to "${name}" of front-matter: ${filePath}`);
     return result;
   } else if (git) {
     const result = moment.tz(git, timezone);
+    logger(`select git timestamp as "${name}": "${git}" => "${result && result.format()}" for ${filePath}`);
     if (! result || ! result.isValid()) throw new Error(`Invalid timestamp "${git}" in git log: ${filePath}`);
     return result;
   } else {
