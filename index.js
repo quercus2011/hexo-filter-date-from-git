@@ -1,5 +1,5 @@
 /* global hexo */
-/* eslint no-param-reassign:0, strict:0 */
+/* eslint no-param-reassign:0, strict:0, max-len:0 */
 'use strict';
 
 const yaml = require('yaml-front-matter');
@@ -30,7 +30,7 @@ hexo.extend.filter.register('before_post_render', data => {
 function execSyncCasually(command) {
   try {
     return execSync(command);
-  } catch(err) {
+  } catch (err) {
     return '';
   }
 }
