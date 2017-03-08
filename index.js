@@ -23,7 +23,7 @@ function parseFrontMatter(text, filePath) {
     }
   } else {
     try {
-      return jsYaml.load(matching[1], {
+      return jsYaml.safeLoad(matching[1], {
         filename: filePath,
         schema: jsYaml.CORE_SCHEMA
       });
