@@ -37,7 +37,7 @@ function parseFrontMatter(text, filePath) {
 function getGitLogs(filePath, logger) {
   // If the file is created a moment ago, it will be an untracked file, then git can not log it
   try {
-    const list = execSync(`git log --follow --format="%ad" -- ${filePath}`).toString().trim().split(/\r?\n/);
+    const list = execSync(`git log --follow --format="%aI" -- ${filePath}`).toString().trim().split(/\r?\n/);
     list.pop();
     const gitLogOldest = list.pop();   // may be undefined
     const gitLogNewest = list.shift(); // may be undefined
