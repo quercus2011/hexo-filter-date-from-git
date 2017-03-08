@@ -37,7 +37,7 @@ function parseFrontMatter(text, filePath) {
 function getGitLogs(filePath, logger) {
   // If the file is created a moment ago, it will be an untracked file, then git can not log it
   try {
-    const list = execSync(`git log --follow --format="%aI" -- ${filePath}`).toString().trim().split(/\r?\n/);
+    const list = execSync(`git log --follow --format="%aI" -- ${filePath}`).toString().split(/\r?\n/);
     list.pop();
     const gitLogOldest = list.pop();   // may be undefined
     const gitLogNewest = list.shift(); // may be undefined
@@ -81,6 +81,7 @@ hexo.extend.filter.register('before_post_render', data => {
   const gitLogs = getGitLogs(filePath, logger);
 
   if (! moment.tz.zone(timezone)) throw new Error(`Invalid "timezone" in hexo configuration: "${timezone}"`);
+
 
   data.date = selectTimestamp('date', data, frontMatter, gitLogs, filePath, timezone, logger);
   data.updated = selectTimestamp('updated', data, frontMatter, gitLogs, filePath, timezone, logger);
