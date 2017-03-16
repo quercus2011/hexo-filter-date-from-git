@@ -82,7 +82,6 @@ hexo.extend.filter.register('before_post_render', data => {
 
   if (! moment.tz.zone(timezone)) throw new Error(`Invalid "timezone" in hexo configuration: "${timezone}"`);
 
-
   data.date = selectTimestamp('date', data, frontMatter, gitLogs, filePath, timezone, logger);
   data.updated = selectTimestamp('updated', data, frontMatter, gitLogs, filePath, timezone, logger);
 
