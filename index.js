@@ -34,7 +34,7 @@ function parseFrontMatter(text, filePath) {
   }
 }
 
-function getGitLogs(filePath, logger) {
+function getGitLogs(filePath) {
   // If the file is created a moment ago, it will be an untracked file, then git can not log it
   try {
     const list = execSync(`git log --follow --format="%aI" -- ${filePath}`).toString().split(/\r?\n/);
@@ -46,7 +46,7 @@ function getGitLogs(filePath, logger) {
       updated: gitLogNewest
     };
   } catch (err) {
-    logger(`"git log" failed for ${filePath}: ${err}`);
+    hexo.log.debug(`"git log" failed for ${filePath}: ${err}`);
     return {};
   }
 }
@@ -62,20 +62,20 @@ function gitDiff(filePath) {
   }
 }
 
-function selectTimestamp(name, data, frontMatter, gitLogs, filePath, timezone, logger) {
+function selectTimestamp(name, data, frontMatter, gitLogs, filePath, timezone) {
   const org = data[name];
   const fm = frontMatter[name];
   const git = gitLogs[name];
   assert(org, `BUG: data.${name} should be set: ${filePath}`);
   if (fm) {
     const result = moment.tz(fm, timezone);
-    logger(`select front-matter timestamp as "${name}": "${fm}" => "${result && result.format()}" for ${filePath}`);
+    hexo.log.debug(`select front-matter timestamp as "${name}": "${fm}" => "${result && result.format()}" for ${filePath}`);
     if (! result || ! result.isValid()) throw new Error(`Invalid timestamp "${fm}" in front-matter: ${filePath}`);
     assert(result.isSame(org), `BUG: data.${name} should be equal to "${name}" of front-matter: ${filePath}`);
     return result.tz('UTC');
   } else if (git) {
     const result = moment.tz(git, timezone);
-    logger(`select git timestamp as "${name}": "${git}" => "${result && result.format()}" for ${filePath}`);
+    hexo.log.debug(`select git timestamp as "${name}": "${git}" => "${result && result.format()}" for ${filePath}`);
     if (! result || ! result.isValid()) throw new Error(`Invalid timestamp "${git}" in git log: ${filePath}`);
     return result.tz('UTC');
   } else {
@@ -85,16 +85,15 @@ function selectTimestamp(name, data, frontMatter, gitLogs, filePath, timezone, l
 }
 
 hexo.extend.filter.register('before_post_render', data => {
-  const logger = hexo.log.debug.bind(hexo.log);
   const timezone = hexo.config.timezone;
   const filePath = data.full_source;
   const frontMatter = parseFrontMatter(data.raw, filePath);
-  const gitLogs = getGitLogs(filePath, logger);
+  const gitLogs = getGitLogs(filePath);
 
   if (! moment.tz.zone(timezone)) throw new Error(`Invalid "timezone" in hexo configuration: "${timezone}"`);
 
-  data.date = selectTimestamp('date', data, frontMatter, gitLogs, filePath, timezone, logger);
-  data.updated = selectTimestamp('updated', data, frontMatter, gitLogs, filePath, timezone, logger);
+  data.date = selectTimestamp('date', data, frontMatter, gitLogs, filePath, timezone);
+  data.updated = selectTimestamp('updated', data, frontMatter, gitLogs, filePath, timezone);
 
   if (data.updated && ! frontMatter.updated && ! gitLogs.updated && gitLogs.date) {
     if (gitDiff(filePath)) {
