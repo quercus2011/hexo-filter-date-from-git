@@ -51,6 +51,17 @@ function getGitLogs(filePath, logger) {
   }
 }
 
+function gitDiff(filePath) {
+  try {
+    const output = execSync(`git diff --quiet -- ${filePath}`).toString();
+    assert(! output);
+    return true;
+  } catch (err) {
+    if (err.status !== 1) hexo.log.warn(`"git diff" command failed with exit code "${err.status}": ${filePath}`);
+    return false;
+  }
+}
+
 function selectTimestamp(name, data, frontMatter, gitLogs, filePath, timezone, logger) {
   const org = data[name];
   const fm = frontMatter[name];
@@ -84,6 +95,13 @@ hexo.extend.filter.register('before_post_render', data => {
 
   data.date = selectTimestamp('date', data, frontMatter, gitLogs, filePath, timezone, logger);
   data.updated = selectTimestamp('updated', data, frontMatter, gitLogs, filePath, timezone, logger);
+
+  if (data.updated && ! frontMatter.updated && ! gitLogs.updated && gitLogs.date) {
+    if (gitDiff(filePath)) {
+      hexo.log.debug(`ignore default "updated" timestamp: ${filePath}`);
+      data.updated = data.date;
+    }
+  }
 
   if (data.date.isAfter(data.updated)) hexo.log.warn(`"data.date" contradicts "data.updated": ${filePath}`);
 
